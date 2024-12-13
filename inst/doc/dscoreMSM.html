@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>R package dscoreMSM</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">R package dscoreMSM</h1>
+
+
+
+<p>This is a vignette for our package ‘dscoreMSM’. It contains some
+essential functions for survival proximity score matching. We have
+included functions for simulation, estimation and survival proximity
+score matching in multistate model. Here we will demonstrate a short
+detail how we can use different function during this process.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(dscoreMSM)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(mstate)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(rjags)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="fu">library</span>(survival)</span></code></pre></div>
+<div id="simulation-of-example-survival-data" class="section level1">
+<h1>Simulation of example survival data</h1>
+<p>The process for simulation of multistate survival data is described
+in our manuscript. As the process includes transition through different
+states and it involves simulating survival time in different transition.
+So we have demonstrated the code for simulation of simple survival
+model. Suppose we want to simulate a survival data with parametric
+baseline hazard and parametric frailty model. The hazard model is as
+follows: <span class="math display">\[h_i(t)=z_ih_0(t)exp(\textbf{x}_i\beta)\;;i=1,2,3,...,n\]</span>
+where the baseline survival time follow Weibull distribution and the
+hazard is <span class="math display">\[h_0(t)=\rho \lambda
+t^{\rho-1}\]</span>. Now we consider the dimension of the covariate
+matrix is 1000 by 2. Hence we consider two covariate that effects the
+hazard of an individual. Now <span class="math inline">\(\beta^T=(0.5\;,0.5)\)</span>, <span class="math inline">\(\rho=2\)</span>, <span class="math inline">\(\lambda=1\)</span> and frailty variance <span class="math inline">\(\theta\)</span> is 0.5.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>n1<span class="ot">&lt;-</span><span class="dv">1000</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>p1<span class="ot">&lt;-</span><span class="dv">2</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>X1<span class="ot">&lt;-</span><span class="fu">matrix</span>(<span class="fu">rnorm</span>(n1<span class="sc">*</span>p1),n1,p1)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>simulated_data<span class="ot">&lt;-</span><span class="fu">simfdata</span>(<span class="at">n=</span><span class="dv">1000</span>,<span class="at">beta=</span><span class="fu">c</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>),<span class="at">fvar=</span><span class="fl">0.5</span>,<span class="at">X=</span>X1)</span></code></pre></div>
+<p>using this simulated data we can estimate the <span class="math inline">\(\beta\)</span> and individual level frailty
+values.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>model1<span class="ot">&lt;-</span><span class="fu">cphGM</span>(<span class="at">formula=</span><span class="fu">Surv</span>(time,status)<span class="sc">~</span>X1<span class="sc">+</span>X2,</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>              <span class="at">fterm=</span><span class="fu">c</span>(<span class="st">&#39;gamma&#39;</span>,<span class="st">&#39;id&#39;</span>),<span class="at">Time=</span><span class="st">&quot;time&quot;</span>,<span class="at">status=</span><span class="st">&quot;status&quot;</span>,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>              <span class="at">id=</span><span class="st">&quot;id&quot;</span>,<span class="at">data=</span>simulated_data,<span class="at">bhdist=</span><span class="st">&#39;weibull&#39;</span>)</span></code></pre></div>
+<p>Estimated <span class="math inline">\(\beta\)</span>,<span class="math inline">\(\theta\)</span>,<span class="math inline">\(\rho\)</span>,<span class="math inline">\(\lambda\)</span></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="st">&quot;True value&quot;</span><span class="ot">=</span><span class="fu">c</span>(<span class="fl">0.5</span>,<span class="fl">0.5</span>,<span class="fl">0.5</span>,<span class="dv">2</span>,<span class="dv">1</span>),<span class="st">&quot;Est value&quot;</span><span class="ot">=</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>             <span class="fu">c</span>(model1<span class="sc">$</span>est_beta,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>               model1<span class="sc">$</span>est_theta,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>               model1<span class="sc">$</span>est_rho,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>               model1<span class="sc">$</span>est_lambda))</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt;   True.value Est.value</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 1        0.5 0.5029217</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; 2        0.5 0.5762855</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; 3        0.5 0.5386266</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; 4        2.0 2.0188470</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; 5        1.0 0.9854260</span></span></code></pre></div>
+<p>Histogram of the estimated frailty values</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">hist</span>(model1<span class="sc">$</span>frailty_values,<span class="at">main=</span><span class="st">&quot;Histogram for z_i&quot;</span>,<span class="at">xlab=</span><span class="st">&quot;estimated frailty&quot;</span>)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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06ZNrfNwHXjnG658kO6//vUvqVKlimzbtk3effdd11kFYnPt2jWpWbOm7N6923X6iR4xXaIDSMT637hxQ7cgzLo/99xz5mFYP73zDWdmR48eFdSrVKlSKcomEBvDMAR/dO4JsAXknl3UYn7++edSqVIlyZIli1SrVk1++OEHj7KsWrVKateura8XL15cnn/+eTl16pQO8+qrr8qSJUt0twEthD/++EP69esnzz77rJUG4s6bN086deok+fPnl/Lly8vEiRPl4sWL0rZtW8mbN680btxYFi9ebMXBwfTp06VWrVqSI0cOHa9hw4ayfft2HcZXvrhw4cIFeemllwTlzJ07tzRv3lwOHjyo45j/Zs2aJY8++qjkzJlTmjVrJhAXf27Xrl265XP+/Hn5+OOP9fHZs2d1K6hPnz7Sq1cvyZMnj/5EGvv27ZPHHntMihUrpnmhK/r1119byXuzMS+ARfXq1fVp3759tdj1799fl9MMY3726NFDUH+6pAQoQEmZxLTP4MGDBXaJkiVLytixY6VGjRr6oZw2bZouNx5oPPgZM2aUMWPGSLdu3WTu3LnSqlUrfb1JkyZSokQJ/cB17txZP3QHDhyQrVu3WvVev369Fi2IEx6uDBky6POHH35YYMdB9wYigHKYbsqUKdKiRQspW7asfPrpp/ra2rVr9cONML7yReuhXr168t133+nyQTBg16lataolmBs2bJDHH39cix6EN1++fNK1a1cz2ySfuXLlEtTrlltuEXSfcAy7zf79+wXxIS7169fXYgZhguAcOXJEIE5gi3hgtWXLFp22NxszQ4SDcMLVrVtXWrZsqdOCcOMHwHSXLl2SUaNGaS6mHz9tBNSXgC5OCJw+fdpQhlVDdQs8Sqy+/Madd96p/VasWIE+gbFu3TorjHrADfULbKgukPZTrQxDiZR1vX379oZqUVnnWbNmNSpWrGioUSTtt3r1ap2mPYwyvmq/HTt26DBIv0GDBlYaOFCtBx1Gtb60v3e+qlWlr8+cOdOKpwTUUOJpKMOx9lMCZahWlXUdB6oVpOMpMfTwt5+gDgMHDrS8wAxclE3I8ps9e7ahWj6GEifLb+fOnTrcJ598ov282SjhMT788EN97cqVKzrsF198oc+VTchQrUNDtXj0Of4pW5uBOEpYLT8e/E2ALSCbGMf6IVomZ86c0S2ENWvWiPlXpkwZQdcDrRMco/WDX+RBgwaJeqB0C2LYsGEedh+nusK4mi7df02E5cqV08GVwFjRChQooI+RLxzSVw+0PkYr5ueff9Zlgge6K74cwmCkCl0vsy4wGivxk19//VVHQZ3RsrK7p556yn4a9DFaT3abEOqDLljRokXl8uXLgtbWokWL5KabbvJb5kCZpU2bVlA2tOhMh64ruo/oltIlJUAjdFImMeuDbgQcuhW+HK7DrmPab2B7wB+6RRCjRx55xFc0n34FCxa0/PFgwcFOYzpTnMxz1TqTt956S9uB0HXDA1ekSBF9Wf3emcE8PlFeCOq9997r4Y8T2GT+/PNPLaoQDruzl83u73RcuHDhJEFGjx6th9Vhq0I90f1Def2VOUkCXh6tW7fWYrxy5Ur9YwBRVi0kr1A8NQmwBWSSiIPP7Nmz61IuXbpUG29h77H/wTANB0Pw5s2b9RD0gAEDRHUVpFGjRgJ7RrDOW2Cc4sGI/e2332rjLloSaI3B/hTIZcuWTQsNDMb2euAYNilcz5Qpk2UPMtPCdTfOFFIzLuYKwdD+wAMPaNGGof7HH3/Ul90KEH4AYJ+DTUx1LbWoRWKKg1mnePukAMXRHStdurQu7YwZM3Q3C10t/GFODx4kzPzFxDiMUOFhQncDLSAYXq9fvy7KLqTjYxIfhsRD5SBwMHR36dJF/91zzz26u7dx40adBebLwHnne/fddwtaQRAbsy4weCMdGLLRFcIIHATX7lDHUDiM2qEMI0eO1IZklGHTpk269QNeTg71gfNmCSM2xAetH3QfUSc63wQoQL65xKSvMjRr2w5Gc/DQmL/YGOItVKiQHu2BvQajMK+//rp+uNEdwqxn/PpjxAwuc+bMunWEBxujNCl1GBHCL//8+fP1iBJsPhMmTNBdEaRt5uGdLyYmolUHwUFc2I4w6ob6wQYF1717d92agB9GrUaMGCFDhw7V11L6D6NksJFB0CAisDeZ0xH82a3seaKViBG2JWpaA1p9poMAQVQxMvnMM8+Y3vz0RUA1NeniiABGlNq0aWOoL78egVHzdAyM1KgHxqqF+uIb6uGywihxMubMmWNdV90MA6NE6vtgqIdHx7ePcOGa6rpZ4TG6g7BqWN/yO3z4sPYzR7AWLlxoKPuJoVotetQH+SNtJXyGEkAdzztfeGKErUKFCjot1aLQo3Fq2NrKBwfKwG0oo7cOo+YCGWq+jT5O7iiYmrfjka6yMRkYmVMtFEMJiaFsTbqsarqBobqsOmygUTAEeO211zRnZUj3SBt5qflG1kiix0WeWATS4MiXMNEvtgmg23Po0CFtQzG7At4lRosB9hJMJvR2uO1oQYV6dAZzatCVUSLmnaU+95cvyvLXX3/peT6+IiIeJijCkIyuWSgdWjsweKMV6cahhYcWFOxVpkNrExMVhwwZYnrx0wcBCpAPKPQiATcEYOuCiML28+STT+pumH3Y302aqT0Oh+FT+x1m/SJGADYsc8pA7969PeYcRawQcZYRW0BxdsNY3NgmgNYPRMicEhHbpY1+6ShA0b8HLAEJJCyB0FrzEhYjK04CJOCGAAXIDTXGIQESCAkBClBIMDIREiABNwQoQG6oMQ4JkEBICFCAQoKRiZAACbghQAFyQ41xSIAEQkKAAhQSjEyEBEjADQEKkBtqjEMCJBASAhSgkGBkIiRAAm4IUIDcUGMcEiCBkBCgAIUEIxMhARJwQ4AC5IYa45AACYSEAAUoJBiZCAmQgBsCFCA31BiHBEggJAQoQCHByERIgATcEKAAuaHGOCRAAiEhQAEKCUYmQgIk4IYABcgNNcYhARIICQEKUEgwMhESIAE3BP4fGp74KSETw+UAAAAASUVORK5CYII=" /><!-- --></p>
+</div>
+<div id="simulating-a-multistate-dataset-with-three-state" class="section level1">
+<h1>Simulating a Multistate dataset with three state:</h1>
+<p>The following is a function to simulate a MSM data with three state.
+The code shows how we combine the simulated survival data for different
+transitions to get the final long format MSM data. Here we have used
+four numerical covariates obtained from normal distribution arbitrarily
+choosen mean and variances and <span class="math inline">\(\beta=c(0.1,0.1,0.5,0.5)\)</span>,<span class="math inline">\(\theta=0.5\)</span>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>msm_data<span class="ot">&lt;-</span><span class="cf">function</span>(){</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>tmat <span class="ot">&lt;-</span> <span class="fu">transMat</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">3</span>), </span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                          <span class="fu">c</span>()), <span class="at">names =</span> <span class="fu">c</span>(<span class="st">&quot;Tx&quot;</span>, <span class="st">&quot;Rec&quot;</span>, <span class="st">&quot;Death&quot;</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>covs<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">x1=</span><span class="fu">rnorm</span>(<span class="dv">100</span>,<span class="dv">0</span>,<span class="dv">1</span>),<span class="at">x2=</span><span class="fu">rnorm</span>(<span class="dv">100</span>,<span class="dv">10</span>,<span class="dv">20</span>),<span class="at">x3=</span><span class="fu">rnorm</span>(<span class="dv">100</span>,<span class="dv">5</span>,<span class="dv">4</span>),<span class="at">x4=</span><span class="fu">rnorm</span>(<span class="dv">100</span>,<span class="dv">3</span>,<span class="dv">2</span>))</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>covs<span class="ot">&lt;-</span><span class="fu">as.matrix</span>(covs)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>ssim13<span class="ot">&lt;-</span><span class="fu">simfdata</span>(<span class="at">n=</span><span class="dv">100</span>,<span class="at">beta=</span><span class="fu">c</span>(<span class="fl">0.1</span>,<span class="fl">0.1</span>,<span class="fl">0.5</span>,<span class="fl">0.5</span>),<span class="at">fvar=</span><span class="fl">0.5</span>,<span class="at">X=</span>covs)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>ssim23<span class="ot">&lt;-</span><span class="fu">simfdata</span>(<span class="at">n=</span><span class="dv">100</span>,<span class="at">beta=</span><span class="fu">c</span>(<span class="fl">0.2</span>,<span class="fl">0.02</span>,<span class="fl">0.5</span>,<span class="fl">0.04</span>),<span class="at">fvar=</span><span class="fl">0.5</span>,<span class="at">X=</span>covs)</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>stime13<span class="ot">&lt;-</span>ssim13<span class="sc">$</span>time</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>stime23<span class="ot">&lt;-</span>ssim23<span class="sc">$</span>time</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#sstatus12&lt;-ssim12$status</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>sstatus13<span class="ot">&lt;-</span>ssim13<span class="sc">$</span>status</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>sstatus23<span class="ot">&lt;-</span>ssim23<span class="sc">$</span>status</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>data1<span class="ot">&lt;-</span><span class="fu">data.frame</span>(<span class="at">id=</span><span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, stime13,stime23,sstatus13,sstatus23,covs)</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(data1)){</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  <span class="cf">if</span>(data1[i,]<span class="sc">$</span>sstatus13<span class="sc">==</span><span class="dv">0</span><span class="sc">&amp;</span>data1[i,]<span class="sc">$</span>sstatus23<span class="sc">==</span><span class="dv">0</span>){</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>    data1[i,]<span class="sc">$</span>stime23<span class="ot">=</span>data1[i,]<span class="sc">$</span>stime13</span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>  }<span class="cf">else</span> <span class="cf">if</span>(data1[i,]<span class="sc">$</span>sstatus13<span class="sc">==</span><span class="dv">1</span><span class="sc">&amp;</span>data1[i,]<span class="sc">$</span>sstatus23<span class="sc">==</span><span class="dv">0</span>) {</span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>    data1[i,]<span class="sc">$</span>stime23<span class="ot">=</span>data1[i,]<span class="sc">$</span>stime13<span class="sc">+</span>data1[i,]<span class="sc">$</span>stime23</span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span>(data1[i,]<span class="sc">$</span>sstatus13<span class="sc">==</span><span class="dv">1</span><span class="sc">&amp;</span>data1[i,]<span class="sc">$</span>sstatus23<span class="sc">==</span><span class="dv">1</span>){</span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>    data1[i,]<span class="sc">$</span>stime23<span class="ot">=</span>data1[i,]<span class="sc">$</span>stime13<span class="sc">+</span>data1[i,]<span class="sc">$</span>stime23</span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span>(data1[i,]<span class="sc">$</span>sstatus13<span class="sc">==</span><span class="dv">0</span><span class="sc">&amp;</span>data1[i,]<span class="sc">$</span>sstatus23<span class="sc">==</span><span class="dv">1</span>){</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a>    data1[i,]<span class="sc">$</span>stime13<span class="ot">=</span>data1[i,]<span class="sc">$</span>stime23</span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a>  }</span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a>}</span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a>udata1<span class="ot">&lt;-</span><span class="fu">list</span>()</span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a>udata1<span class="sc">$</span>id<span class="ot">&lt;-</span>data1<span class="sc">$</span>id;udata1<span class="sc">$</span>status<span class="ot">&lt;-</span>data1<span class="sc">$</span>sstatus23;udata1<span class="sc">$</span>time<span class="ot">&lt;-</span>data1<span class="sc">$</span>stime23;udata1<span class="sc">$</span>x1<span class="ot">&lt;-</span>data1<span class="sc">$</span>x1;udata1<span class="sc">$</span>x2<span class="ot">&lt;-</span>data1<span class="sc">$</span>x2</span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a>udata1<span class="sc">$</span>x3<span class="ot">&lt;-</span>data1<span class="sc">$</span>x3;udata1<span class="sc">$</span>x4<span class="ot">&lt;-</span>data1<span class="sc">$</span>x4</span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a>udata1<span class="ot">&lt;-</span><span class="fu">as.data.frame</span>(udata1)</span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a>udata<span class="ot">&lt;-</span><span class="fu">dscore</span>(<span class="at">status=</span><span class="st">&quot;status&quot;</span>,<span class="at">data=</span>udata1,<span class="at">prob=</span><span class="fl">0.65</span>,<span class="at">m=</span><span class="dv">4</span>,<span class="at">n=</span><span class="dv">7</span>)</span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a>ndata<span class="ot">&lt;-</span>udata<span class="sc">$</span>newdata</span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a>data2<span class="ot">&lt;-</span>data1</span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a>data2<span class="sc">$</span>sstatus23<span class="ot">&lt;-</span><span class="fu">as.numeric</span>(<span class="fu">as.character</span>(ndata<span class="sc">$</span>status))</span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a>covs1 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;x1&quot;</span>, <span class="st">&quot;x2&quot;</span>, <span class="st">&quot;x3&quot;</span>,<span class="st">&quot;x4&quot;</span>)</span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a>msbmt <span class="ot">&lt;-</span> <span class="fu">msprep</span>(<span class="at">time =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">&quot;stime13&quot;</span>, <span class="st">&quot;stime23&quot;</span>), <span class="at">status =</span> <span class="fu">c</span>(<span class="cn">NA</span>,</span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a>                                                               <span class="st">&quot;sstatus13&quot;</span>, <span class="st">&quot;sstatus23&quot;</span>), <span class="at">data =</span>data1, <span class="at">trans =</span> tmat, <span class="at">keep =</span> covs1)</span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a>msbmt1 <span class="ot">&lt;-</span> <span class="fu">msprep</span>(<span class="at">time =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">&quot;stime13&quot;</span>, <span class="st">&quot;stime23&quot;</span>), <span class="at">status =</span> <span class="fu">c</span>(<span class="cn">NA</span>,</span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a>                                                                <span class="st">&quot;sstatus13&quot;</span>, <span class="st">&quot;sstatus23&quot;</span>), <span class="at">data =</span>data2, <span class="at">trans =</span> tmat, <span class="at">keep =</span> covs1)</span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a>msbmt <span class="ot">&lt;-</span> <span class="fu">expand.covs</span>(msbmt, covs1, <span class="at">append =</span> <span class="cn">TRUE</span>, <span class="at">longnames =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a>msbmt1 <span class="ot">&lt;-</span> <span class="fu">expand.covs</span>(msbmt1, covs1, <span class="at">append =</span> <span class="cn">TRUE</span>, <span class="at">longnames =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a>result<span class="ot">&lt;-</span><span class="fu">list</span>()</span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a>result<span class="sc">$</span>msbmt<span class="ot">&lt;-</span>msbmt</span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a>result<span class="sc">$</span>msbmt1<span class="ot">&lt;-</span>msbmt1</span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="fu">return</span>(result)</span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a>}</span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a>sim_data<span class="ot">&lt;-</span><span class="fu">msm_data</span>()</span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; Compiling data graph</span></span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co">#&gt;    Initializing</span></span>
+<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a><span class="co">#&gt;    Reading data back into data table</span></span>
+<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a><span class="co">#&gt; Compiling model graph</span></span>
+<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-58"><a href="#cb6-58" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a><span class="co">#&gt; Graph information:</span></span>
+<span id="cb6-60"><a href="#cb6-60" tabindex="-1"></a><span class="co">#&gt;    Observed stochastic nodes: 9300</span></span>
+<span id="cb6-61"><a href="#cb6-61" tabindex="-1"></a><span class="co">#&gt;    Unobserved stochastic nodes: 95</span></span>
+<span id="cb6-62"><a href="#cb6-62" tabindex="-1"></a><span class="co">#&gt;    Total graph size: 19838</span></span>
+<span id="cb6-63"><a href="#cb6-63" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-64"><a href="#cb6-64" tabindex="-1"></a><span class="co">#&gt; Initializing model</span></span>
+<span id="cb6-65"><a href="#cb6-65" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-66"><a href="#cb6-66" tabindex="-1"></a><span class="co">#&gt; Compiling data graph</span></span>
+<span id="cb6-67"><a href="#cb6-67" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-68"><a href="#cb6-68" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-69"><a href="#cb6-69" tabindex="-1"></a><span class="co">#&gt;    Initializing</span></span>
+<span id="cb6-70"><a href="#cb6-70" tabindex="-1"></a><span class="co">#&gt;    Reading data back into data table</span></span>
+<span id="cb6-71"><a href="#cb6-71" tabindex="-1"></a><span class="co">#&gt; Compiling model graph</span></span>
+<span id="cb6-72"><a href="#cb6-72" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-73"><a href="#cb6-73" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-74"><a href="#cb6-74" tabindex="-1"></a><span class="co">#&gt; Graph information:</span></span>
+<span id="cb6-75"><a href="#cb6-75" tabindex="-1"></a><span class="co">#&gt;    Observed stochastic nodes: 9300</span></span>
+<span id="cb6-76"><a href="#cb6-76" tabindex="-1"></a><span class="co">#&gt;    Unobserved stochastic nodes: 95</span></span>
+<span id="cb6-77"><a href="#cb6-77" tabindex="-1"></a><span class="co">#&gt;    Total graph size: 29177</span></span>
+<span id="cb6-78"><a href="#cb6-78" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-79"><a href="#cb6-79" tabindex="-1"></a><span class="co">#&gt; Initializing model</span></span>
+<span id="cb6-80"><a href="#cb6-80" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-81"><a href="#cb6-81" tabindex="-1"></a><span class="co">#&gt; Compiling data graph</span></span>
+<span id="cb6-82"><a href="#cb6-82" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-83"><a href="#cb6-83" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-84"><a href="#cb6-84" tabindex="-1"></a><span class="co">#&gt;    Initializing</span></span>
+<span id="cb6-85"><a href="#cb6-85" tabindex="-1"></a><span class="co">#&gt;    Reading data back into data table</span></span>
+<span id="cb6-86"><a href="#cb6-86" tabindex="-1"></a><span class="co">#&gt; Compiling model graph</span></span>
+<span id="cb6-87"><a href="#cb6-87" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-88"><a href="#cb6-88" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-89"><a href="#cb6-89" tabindex="-1"></a><span class="co">#&gt; Graph information:</span></span>
+<span id="cb6-90"><a href="#cb6-90" tabindex="-1"></a><span class="co">#&gt;    Observed stochastic nodes: 9300</span></span>
+<span id="cb6-91"><a href="#cb6-91" tabindex="-1"></a><span class="co">#&gt;    Unobserved stochastic nodes: 95</span></span>
+<span id="cb6-92"><a href="#cb6-92" tabindex="-1"></a><span class="co">#&gt;    Total graph size: 29177</span></span>
+<span id="cb6-93"><a href="#cb6-93" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-94"><a href="#cb6-94" tabindex="-1"></a><span class="co">#&gt; Initializing model</span></span>
+<span id="cb6-95"><a href="#cb6-95" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-96"><a href="#cb6-96" tabindex="-1"></a><span class="co">#&gt; Compiling data graph</span></span>
+<span id="cb6-97"><a href="#cb6-97" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-98"><a href="#cb6-98" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-99"><a href="#cb6-99" tabindex="-1"></a><span class="co">#&gt;    Initializing</span></span>
+<span id="cb6-100"><a href="#cb6-100" tabindex="-1"></a><span class="co">#&gt;    Reading data back into data table</span></span>
+<span id="cb6-101"><a href="#cb6-101" tabindex="-1"></a><span class="co">#&gt; Compiling model graph</span></span>
+<span id="cb6-102"><a href="#cb6-102" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-103"><a href="#cb6-103" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-104"><a href="#cb6-104" tabindex="-1"></a><span class="co">#&gt; Graph information:</span></span>
+<span id="cb6-105"><a href="#cb6-105" tabindex="-1"></a><span class="co">#&gt;    Observed stochastic nodes: 9300</span></span>
+<span id="cb6-106"><a href="#cb6-106" tabindex="-1"></a><span class="co">#&gt;    Unobserved stochastic nodes: 95</span></span>
+<span id="cb6-107"><a href="#cb6-107" tabindex="-1"></a><span class="co">#&gt;    Total graph size: 29177</span></span>
+<span id="cb6-108"><a href="#cb6-108" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-109"><a href="#cb6-109" tabindex="-1"></a><span class="co">#&gt; Initializing model</span></span>
+<span id="cb6-110"><a href="#cb6-110" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-111"><a href="#cb6-111" tabindex="-1"></a><span class="co">#&gt; Compiling data graph</span></span>
+<span id="cb6-112"><a href="#cb6-112" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-113"><a href="#cb6-113" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-114"><a href="#cb6-114" tabindex="-1"></a><span class="co">#&gt;    Initializing</span></span>
+<span id="cb6-115"><a href="#cb6-115" tabindex="-1"></a><span class="co">#&gt;    Reading data back into data table</span></span>
+<span id="cb6-116"><a href="#cb6-116" tabindex="-1"></a><span class="co">#&gt; Compiling model graph</span></span>
+<span id="cb6-117"><a href="#cb6-117" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-118"><a href="#cb6-118" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-119"><a href="#cb6-119" tabindex="-1"></a><span class="co">#&gt; Graph information:</span></span>
+<span id="cb6-120"><a href="#cb6-120" tabindex="-1"></a><span class="co">#&gt;    Observed stochastic nodes: 9300</span></span>
+<span id="cb6-121"><a href="#cb6-121" tabindex="-1"></a><span class="co">#&gt;    Unobserved stochastic nodes: 95</span></span>
+<span id="cb6-122"><a href="#cb6-122" tabindex="-1"></a><span class="co">#&gt;    Total graph size: 29177</span></span>
+<span id="cb6-123"><a href="#cb6-123" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-124"><a href="#cb6-124" tabindex="-1"></a><span class="co">#&gt; Initializing model</span></span>
+<span id="cb6-125"><a href="#cb6-125" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-126"><a href="#cb6-126" tabindex="-1"></a><span class="co">#&gt; Compiling data graph</span></span>
+<span id="cb6-127"><a href="#cb6-127" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-128"><a href="#cb6-128" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-129"><a href="#cb6-129" tabindex="-1"></a><span class="co">#&gt;    Initializing</span></span>
+<span id="cb6-130"><a href="#cb6-130" tabindex="-1"></a><span class="co">#&gt;    Reading data back into data table</span></span>
+<span id="cb6-131"><a href="#cb6-131" tabindex="-1"></a><span class="co">#&gt; Compiling model graph</span></span>
+<span id="cb6-132"><a href="#cb6-132" tabindex="-1"></a><span class="co">#&gt;    Resolving undeclared variables</span></span>
+<span id="cb6-133"><a href="#cb6-133" tabindex="-1"></a><span class="co">#&gt;    Allocating nodes</span></span>
+<span id="cb6-134"><a href="#cb6-134" tabindex="-1"></a><span class="co">#&gt; Graph information:</span></span>
+<span id="cb6-135"><a href="#cb6-135" tabindex="-1"></a><span class="co">#&gt;    Observed stochastic nodes: 9300</span></span>
+<span id="cb6-136"><a href="#cb6-136" tabindex="-1"></a><span class="co">#&gt;    Unobserved stochastic nodes: 95</span></span>
+<span id="cb6-137"><a href="#cb6-137" tabindex="-1"></a><span class="co">#&gt;    Total graph size: 29177</span></span>
+<span id="cb6-138"><a href="#cb6-138" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-139"><a href="#cb6-139" tabindex="-1"></a><span class="co">#&gt; Initializing model</span></span>
+<span id="cb6-140"><a href="#cb6-140" tabindex="-1"></a>example_data1<span class="ot">&lt;-</span>sim_data[[<span class="dv">1</span>]]</span>
+<span id="cb6-141"><a href="#cb6-141" tabindex="-1"></a>example_data1_updated<span class="ot">&lt;-</span>sim_data[[<span class="dv">2</span>]]</span>
+<span id="cb6-142"><a href="#cb6-142" tabindex="-1"></a><span class="fu">table</span>(example_data1<span class="sc">$</span>status)</span>
+<span id="cb6-143"><a href="#cb6-143" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-144"><a href="#cb6-144" tabindex="-1"></a><span class="co">#&gt;   0   1 </span></span>
+<span id="cb6-145"><a href="#cb6-145" tabindex="-1"></a><span class="co">#&gt; 106 188</span></span>
+<span id="cb6-146"><a href="#cb6-146" tabindex="-1"></a><span class="fu">table</span>(example_data1_updated<span class="sc">$</span>status)</span>
+<span id="cb6-147"><a href="#cb6-147" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-148"><a href="#cb6-148" tabindex="-1"></a><span class="co">#&gt;   0   1 </span></span>
+<span id="cb6-149"><a href="#cb6-149" tabindex="-1"></a><span class="co">#&gt; 104 190</span></span></code></pre></div>
+</div>
+<div id="application-on-the-ebmt-dataset" class="section level1">
+<h1>Application on the EBMT dataset</h1>
+<p>A demonstartion on the EBMT dataset (before and after updating
+through SPSM). Since dscore function uses Bayesian MCMC method, it takes
+a bit time to update the doubtful censored cases in large dataset.
+Therefore we have included a readymade updated dataset using Euclidean
+metric in our package. We have shown the rest of the code using this two
+available dataset in our package.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;EBMTdata&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;EBMTupdate&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">table</span>(EBMTdata<span class="sc">$</span>status)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">table</span>(EBMTupdate<span class="sc">$</span>status)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>tmat<span class="ot">&lt;-</span><span class="fu">transMat</span>(<span class="at">x =</span> <span class="fu">list</span>(<span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>), <span class="fu">c</span>(<span class="dv">3</span>), <span class="fu">c</span>()), <span class="at">names =</span> <span class="fu">c</span>(<span class="st">&quot;Tx&quot;</span>, <span class="st">&quot;Rec&quot;</span>, <span class="st">&quot;Death&quot;</span>))</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>covs<span class="ot">&lt;-</span><span class="fu">c</span>(<span class="st">&quot;dissub&quot;</span>, <span class="st">&quot;age&quot;</span>, <span class="st">&quot;drmatch&quot;</span>, <span class="st">&quot;tcd&quot;</span>, <span class="st">&quot;prtime&quot;</span>,<span class="st">&quot;x1&quot;</span>,<span class="st">&quot;x2&quot;</span>,<span class="st">&quot;x3&quot;</span>,<span class="st">&quot;x4&quot;</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>msbmt<span class="ot">&lt;-</span><span class="fu">msprep</span>(<span class="at">time =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">&quot;prtime&quot;</span>, <span class="st">&quot;rfstime&quot;</span>), <span class="at">status =</span> <span class="fu">c</span>(<span class="cn">NA</span>,<span class="st">&quot;prstat&quot;</span>, <span class="st">&quot;rfsstat&quot;</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>              <span class="at">data =</span> EBMTdata, <span class="at">trans =</span> tmat, <span class="at">keep =</span> covs)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>msbmt1<span class="ot">&lt;-</span><span class="fu">msprep</span>(<span class="at">time =</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="st">&quot;prtime&quot;</span>, <span class="st">&quot;rfstime&quot;</span>), <span class="at">status =</span> <span class="fu">c</span>(<span class="cn">NA</span>,<span class="st">&quot;prstat&quot;</span>, <span class="st">&quot;rfsstat&quot;</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>               <span class="at">data =</span> EBMTupdate, <span class="at">trans =</span> tmat, <span class="at">keep =</span> covs)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>msph3<span class="ot">&lt;-</span><span class="fu">coxph</span>(<span class="fu">Surv</span>(time,status)<span class="sc">~</span>dissub<span class="sc">+</span>age <span class="sc">+</span>drmatch<span class="sc">+</span> tcd<span class="sc">+</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>               <span class="fu">frailty</span>(id,<span class="at">distribution =</span> <span class="st">&#39;gamma&#39;</span>),<span class="at">data=</span>msbmt[msbmt<span class="sc">$</span>trans<span class="sc">==</span><span class="dv">3</span>,])</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>msph33<span class="ot">&lt;-</span><span class="fu">coxph</span>(<span class="fu">Surv</span>(Tstart,Tstop,status)<span class="sc">~</span>dissub<span class="sc">+</span>age <span class="sc">+</span>drmatch<span class="sc">+</span> tcd<span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>                <span class="fu">frailty</span>(id,<span class="at">distribution =</span> <span class="st">&#39;gamma&#39;</span>),<span class="at">data=</span>msbmt1[msbmt1<span class="sc">$</span>trans<span class="sc">==</span><span class="dv">3</span>,])</span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="fu">ggplot_roc</span>(<span class="at">trns=</span><span class="dv">3</span>,<span class="at">model1=</span>msph3,<span class="at">model2=</span>msph33,</span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>           <span class="at">folder_path=</span><span class="cn">NULL</span>,</span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>           <span class="at">data1=</span>msbmt,<span class="at">data2=</span>msbmt1,<span class="at">times=</span><span class="cn">NULL</span>)</span></code></pre></div>
+<p>To compare the survival curve of an individual under this two model
+ggsurv_plot() can be used as shown below:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">ggplot_surv</span>(<span class="at">model1=</span>msph3,<span class="at">model2=</span>msph33,<span class="at">data1=</span>msbmt,<span class="at">data2=</span>msbmt1,<span class="at">n_trans=</span><span class="dv">3</span>,<span class="at">id=</span><span class="dv">1</span>)</span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,151 @@
+---
+title: "R package dscoreMSM"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{dscoreMSM}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+This is a vignette for our package 'dscoreMSM'. It contains some essential functions for survival proximity score matching. We have included functions for simulation, estimation and survival proximity score matching in multistate model. Here we will demonstrate a short detail how we can use different function during this process. 
+```{r}
+library(dscoreMSM)
+library(mstate)
+library(rjags)
+library(ggplot2)
+library(survival)
+```
+
+# Simulation of example survival data
+
+The process for simulation of multistate survival data is described in our manuscript. As the process includes transition through different states and it involves simulating survival time in different transition. So we have demonstrated the code for simulation of simple survival model. 
+Suppose we want to simulate a survival data with parametric baseline hazard and parametric frailty model. The hazard model is as follows:
+  \[h_i(t)=z_ih_0(t)exp(\textbf{x}_i\beta)\;;i=1,2,3,...,n\]
+where the baseline survival time follow Weibull distribution and the hazard is 
+\[h_0(t)=\rho \lambda t^{\rho-1}\]. 
+Now we consider the dimension of the covariate matrix is 1000 by 2. Hence we consider two covariate that effects the hazard of an individual. Now $\beta^T=(0.5\;,0.5)$, $\rho=2$, $\lambda=1$ and frailty variance $\theta$ is 0.5.
+```{r}
+n1<-1000
+p1<-2
+X1<-matrix(rnorm(n1*p1),n1,p1)
+simulated_data<-simfdata(n=1000,beta=c(0.5,0.5),fvar=0.5,X=X1)
+```
+using this simulated data we can estimate the $\beta$ and individual level frailty values.
+```{r}
+model1<-cphGM(formula=Surv(time,status)~X1+X2,
+              fterm=c('gamma','id'),Time="time",status="status",
+              id="id",data=simulated_data,bhdist='weibull')
+```
+Estimated $\beta$,$\theta$,$\rho$,$\lambda$
+```{r}
+data.frame("True value"=c(0.5,0.5,0.5,2,1),"Est value"=
+             c(model1$est_beta,
+               model1$est_theta,
+               model1$est_rho,
+               model1$est_lambda))
+```
+Histogram of the estimated frailty values
+```{r}
+hist(model1$frailty_values,main="Histogram for z_i",xlab="estimated frailty")
+```
+
+
+# Simulating a Multistate dataset with three state:
+
+The following is a function to simulate a MSM data with three state. The code shows how we combine the simulated survival data for different transitions to get the final long format MSM data. Here we have used four numerical covariates obtained from normal distribution arbitrarily choosen mean and variances and $\beta=c(0.1,0.1,0.5,0.5)$,$\theta=0.5$. 
+```{r, echo=TRUE, message=FALSE, warning=FALSE}
+msm_data<-function(){
+tmat <- transMat(x = list(c(2, 3), c(3), 
+                          c()), names = c("Tx", "Rec", "Death"))
+covs<-data.frame(x1=rnorm(100,0,1),x2=rnorm(100,10,20),x3=rnorm(100,5,4),x4=rnorm(100,3,2))
+covs<-as.matrix(covs)
+ssim13<-simfdata(n=100,beta=c(0.1,0.1,0.5,0.5),fvar=0.5,X=covs)
+ssim23<-simfdata(n=100,beta=c(0.2,0.02,0.5,0.04),fvar=0.5,X=covs)
+
+stime13<-ssim13$time
+stime23<-ssim23$time
+#sstatus12<-ssim12$status
+sstatus13<-ssim13$status
+sstatus23<-ssim23$status
+data1<-data.frame(id=1:100, stime13,stime23,sstatus13,sstatus23,covs)
+
+for(i in 1:nrow(data1)){
+  if(data1[i,]$sstatus13==0&data1[i,]$sstatus23==0){
+    data1[i,]$stime23=data1[i,]$stime13
+  }else if(data1[i,]$sstatus13==1&data1[i,]$sstatus23==0) {
+    data1[i,]$stime23=data1[i,]$stime13+data1[i,]$stime23
+  } else if(data1[i,]$sstatus13==1&data1[i,]$sstatus23==1){
+    data1[i,]$stime23=data1[i,]$stime13+data1[i,]$stime23
+  } else if(data1[i,]$sstatus13==0&data1[i,]$sstatus23==1){
+    data1[i,]$stime13=data1[i,]$stime23
+  }
+}
+udata1<-list()
+udata1$id<-data1$id;udata1$status<-data1$sstatus23;udata1$time<-data1$stime23;udata1$x1<-data1$x1;udata1$x2<-data1$x2
+udata1$x3<-data1$x3;udata1$x4<-data1$x4
+udata1<-as.data.frame(udata1)
+udata<-dscore(status="status",data=udata1,prob=0.65,m=4,n=7)
+ndata<-udata$newdata
+data2<-data1
+data2$sstatus23<-as.numeric(as.character(ndata$status))
+covs1 <- c("x1", "x2", "x3","x4")
+msbmt <- msprep(time = c(NA, "stime13", "stime23"), status = c(NA,
+                                                               "sstatus13", "sstatus23"), data =data1, trans = tmat, keep = covs1)
+
+msbmt1 <- msprep(time = c(NA, "stime13", "stime23"), status = c(NA,
+                                                                "sstatus13", "sstatus23"), data =data2, trans = tmat, keep = covs1)
+
+msbmt <- expand.covs(msbmt, covs1, append = TRUE, longnames = FALSE)
+
+msbmt1 <- expand.covs(msbmt1, covs1, append = TRUE, longnames = FALSE)
+result<-list()
+result$msbmt<-msbmt
+result$msbmt1<-msbmt1
+return(result)
+}
+sim_data<-msm_data()
+example_data1<-sim_data[[1]]
+example_data1_updated<-sim_data[[2]]
+table(example_data1$status)
+table(example_data1_updated$status)
+```
+# Application on the EBMT dataset
+
+A demonstartion on the EBMT dataset (before and after updating through SPSM). Since dscore function uses Bayesian MCMC method, it takes a bit time to update the doubtful censored cases in large dataset. Therefore we have included a readymade updated dataset using Euclidean metric in our package. We have shown the rest of the code using this two available dataset in our package.
+
+```{r, eval=FALSE}
+data("EBMTdata")
+data("EBMTupdate")
+table(EBMTdata$status)
+table(EBMTupdate$status)
+tmat<-transMat(x = list(c(2, 3), c(3), c()), names = c("Tx", "Rec", "Death"))
+covs<-c("dissub", "age", "drmatch", "tcd", "prtime","x1","x2","x3","x4")
+msbmt<-msprep(time = c(NA, "prtime", "rfstime"), status = c(NA,"prstat", "rfsstat"),
+              data = EBMTdata, trans = tmat, keep = covs)
+msbmt1<-msprep(time = c(NA, "prtime", "rfstime"), status = c(NA,"prstat", "rfsstat"),
+               data = EBMTupdate, trans = tmat, keep = covs)
+
+msph3<-coxph(Surv(time,status)~dissub+age +drmatch+ tcd+
+               frailty(id,distribution = 'gamma'),data=msbmt[msbmt$trans==3,])
+msph33<-coxph(Surv(Tstart,Tstop,status)~dissub+age +drmatch+ tcd+
+                frailty(id,distribution = 'gamma'),data=msbmt1[msbmt1$trans==3,])
+
+ggplot_roc(trns=3,model1=msph3,model2=msph33,
+           folder_path=NULL,
+           data1=msbmt,data2=msbmt1,times=NULL)
+```
+
+To compare the survival curve of an individual under this two model ggsurv_plot() can be used as shown below:
+
+```{r, eval=FALSE}
+ggplot_surv(model1=msph3,model2=msph33,data1=msbmt,data2=msbmt1,n_trans=3,id=1)
+```
